@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Verbs - Master & Practice</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .bounce-short {
+            animation: bounce 0.4s ease;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Navigation -->
+    <header class="max-w-3xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30 text-2xl">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                    VerbMaster
+                </h1>
+                <p class="text-xs text-slate-400">Master English Verbs Efficiently</p>
+            </div>
+        </div>
+
+        <!-- Score & Stats -->
+        <div class="flex items-center gap-4 bg-slate-800/80 backdrop-blur border border-slate-700/60 px-4 py-2 rounded-xl text-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-fire text-amber-500 text-base"></i>
+                <span class="text-slate-400">Streak:</span>
+                <span id="streakCount" class="font-bold text-amber-400">0</span>
+            </div>
+            <div class="w-px h-4 bg-slate-700"></div>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-star text-yellow-400 text-base"></i>
+                <span class="text-slate-400">Score:</span>
+                <span id="scoreCount" class="font-bold text-yellow-400">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-2xl w-full mx-auto my-auto">
+        <!-- Level Selection Tabs -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button id="tabLevel1" onclick="switchLevel(1)" class="p-4 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group bg-slate-800/90 border-indigo-500 text-white shadow-lg shadow-indigo-500/10">
+                <div class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-1">Level 1</div>
+                <div class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-check-double text-indigo-400"></i> Regular Verbs
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Practice base & past forms</p>
+            </button>
+
+            <button id="tabLevel2" onclick="switchLevel(2)" class="p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800/70 transition-all duration-200 text-left relative overflow-hidden group">
+                <div class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-1">Level 2</div>
+                <div class="text-base font-bold flex items-center gap-2 text-white">
+                    <i class="fa-solid fa-bolt text-purple-400"></i> Irregular Verbs
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Practice infinitive & past forms</p>
+            </button>
+        </div>
+
+        <!-- Flashcard Area -->
+        <div id="cardContainer" class="bg-slate-800 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6 overflow-hidden">
+                <div id="progressBar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Verb Question Box -->
+            <div class="text-center py-4">
+                <span id="levelBadge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
+                    Regular Verbs
+                </span>
+                
+                <!-- Meaning -->
+                <h2 id="czMeaning" class="text-3xl sm:text-4xl font-extrabold text-white tracking-wide mb-2">
+                    --
+                </h2>
+                
+                <!-- Helper / Prompt -->
+                <p id="promptText" class="text-slate-400 text-sm sm:text-base font-medium">
+                    Type present and past forms separated by a space
+                </p>
+            </div>
+
+            <!-- Answer Input Form -->
+            <form id="verbForm" onsubmit="handleCheck(event)" class="mt-6 space-y-4">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="answerInput"
+                        autocomplete="off"
+                        autofocus
+                        placeholder="present past"
+                        class="w-full px-5 py-4 bg-slate-900/90 border-2 border-slate-700 rounded-2xl text-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all text-center font-medium tracking-wide"
+                    />
+                    <button 
+                        type="button" 
+                        onclick="giveHint()" 
+                        title="Show hint"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-amber-400 transition-colors"
+                    >
+                        <i class="fa-regular fa-lightbulb text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Feedback Message -->
+                <div id="feedback" class="min-h-[2.5rem] flex items-center justify-center text-center font-semibold text-sm rounded-xl px-4 py-2 transition-all duration-200 opacity-0">
+                    <!-- Dynamic feedback content -->
+                </div>
+
+                <!-- Action Button -->
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full py-4 px-6 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/30 transition-all duration-150 flex items-center justify-center gap-2 text-lg"
+                >
+                    <span>Check Answer</span>
+                    <i class="fa-solid fa-arrow-right text-base"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Quick Help Box -->
+        <div class="mt-6 bg-slate-800/40 border border-slate-800 rounded-2xl p-4 text-xs text-slate-400 flex items-start gap-3">
+            <i class="fa-solid fa-circle-info text-indigo-400 text-base shrink-0 mt-0.5"></i>
+            <div>
+                <strong class="text-slate-300">Instructions:</strong>
+                <ul class="list-disc list-inside mt-1 space-y-1">
+                    <span id="helpTextLevel1">Type the <strong>present form</strong> and <strong>past simple form</strong> separated by a space (e.g. <code class="bg-slate-700 text-indigo-300 px-1 py-0.5 rounded">present past</code>).</span>
+                    <span id="helpTextLevel2" class="hidden">Type the <strong>infinitive</strong> and <strong>past simple form</strong> separated by a space (e.g. <code class="bg-slate-700 text-purple-300 px-1 py-0.5 rounded">infinitive past</code>). You cannot proceed until spelled correctly!</span>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-2xl w-full mx-auto text-center text-xs text-slate-500 py-4">
+        English Grammar Practice • Regular and Irregular Verbs
+    </footer>
+
+    <script>
+        // Data for Regular Verbs (Level 1)
+        const regularVerbs = [
+            { cz: 'to play', base: 'play', past: 'played' },
+            { cz: 'to work', base: 'work', past: 'worked' },
+            { cz: 'to watch', base: 'watch', past: 'watched' },
+            { cz: 'to listen', base: 'listen', past: 'listened' },
+            { cz: 'to wash', base: 'wash', past: 'washed' },
+            { cz: 'to open', base: 'open', past: 'opened' },
+            { cz: 'to close', base: 'close', past: 'closed' },
+            { cz: 'to live', base: 'live', past: 'lived' },
+            { cz: 'to love', base: 'love', past: 'loved' },
+            { cz: 'to study', base: 'study', past: 'studied' },
+            { cz: 'to stop', base: 'stop', past: 'stopped' },
+            { cz: 'to cook', base: 'cook', past: 'cooked' },
+            { cz: 'to help', base: 'help', past: 'helped' },
+            { cz: 'to visit', base: 'visit', past: 'visited' },
+            { cz: 'to need', base: 'need', past: 'needed' },
+            { cz: 'to want', base: 'want', past: 'wanted' },
+            { cz: 'to start', base: 'start', past: 'started' },
+            { cz: 'to jump', base: 'jump', past: 'jumped' },
+            { cz: 'to walk', base: 'walk', past: 'walked' },
+            { cz: 'to clean', base: 'clean', past: 'cleaned' }
+        ];
+
+        // Data for Irregular Verbs (Level 2)
+        const irregularVerbs = [
+            { cz: 'to go', base: 'go', past: 'went' },
+            { cz: 'to have', base: 'have', past: 'had' },
+            { cz: 'to do', base: 'do', past: 'did' },
+            { cz: 'to say', base: 'say', past: 'said' },
+            { cz: 'to see', base: 'see', past: 'saw' },
+            { cz: 'to come', base: 'come', past: 'came' },
+            { cz: 'to take', base: 'take', past: 'took' },
+            { cz: 'to give', base: 'give', past: 'gave' },
+            { cz: 'to write', base: 'write', past: 'wrote' },
+            { cz: 'to read', base: 'read', past: 'read' },
+            { cz: 'to run', base: 'run', past: 'ran' },
+            { cz: 'to eat', base: 'eat', past: 'ate' },
+            { cz: 'to drink', base: 'drink', past: 'drank' },
+            { cz: 'to sleep', base: 'sleep', past: 'slept' },
+            { cz: 'to buy', base: 'buy', past: 'bought' },
+            { cz: 'to think', base: 'think', past: 'thought' },
+            { cz: 'to speak', base: 'speak', past: 'spoke' },
+            { cz: 'to make', base: 'make', past: 'made' },
+            { cz: 'to find', base: 'find', past: 'found' },
+            { cz: 'to become', base: 'become', past: 'became' },
+            { cz: 'to begin', base: 'begin', past: 'began' },
+            { cz: 'to know', base: 'know', past: 'knew' },
+            { cz: 'to fly', base: 'fly', past: 'flew' },
+            { cz: 'to hear', base: 'hear', past: 'heard' }
+        ];
+
+        // State variables
+        let currentLevel = 1;
+        let currentVerbIndex = 0;
+        let currentQueue = [];
+        let streak = 0;
+        let score = 0;
+
+        // Elements
+        const czMeaningEl = document.getElementById('czMeaning');
+        const promptTextEl = document.getElementById('promptText');
+        const levelBadgeEl = document.getElementById('levelBadge');
+        const answerInput = document.getElementById('answerInput');
+        const feedbackEl = document.getElementById('feedback');
+        const cardContainer = document.getElementById('cardContainer');
+        const progressBar = document.getElementById('progressBar');
+        const streakCountEl = document.getElementById('streakCount');
+        const scoreCountEl = document.getElementById('scoreCount');
+
+        // Shuffle helper
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Initialize Level
+        function initLevel(level) {
+            currentLevel = level;
+            const source = level === 1 ? regularVerbs : irregularVerbs;
+            currentQueue = shuffleArray(source);
+            currentVerbIndex = 0;
+            loadVerb();
+        }
+
+        // Load verb onto card
+        function loadVerb() {
+            if (currentVerbIndex >= currentQueue.length) {
+                // Reshuffle queue when finished
+                currentQueue = shuffleArray(currentLevel === 1 ? regularVerbs : irregularVerbs);
+                currentVerbIndex = 0;
+            }
+
+            const verb = currentQueue[currentVerbIndex];
+            czMeaningEl.textContent = verb.cz;
+            answerInput.value = '';
+            answerInput.focus();
+
+            // Clear feedback
+            hideFeedback();
+
+            // UI Adjustments based on Level
+            if (currentLevel === 1) {
+                levelBadgeEl.textContent = 'Regular Verbs';
+                levelBadgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3';
+                promptTextEl.innerHTML = `Type present and past forms separated by a space`;
+                answerInput.placeholder = `present past`;
+            } else {
+                levelBadgeEl.textContent = 'Irregular Verbs';
+                levelBadgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 mb-3';
+                promptTextEl.innerHTML = `Type infinitive and past forms separated by a space`;
+                answerInput.placeholder = `infinitive past`;
+            }
+
+            // Update Progress
+            const progress = ((currentVerbIndex) / currentQueue.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Switch between levels
+        function switchLevel(level) {
+            if (currentLevel === level) return;
+
+            const tab1 = document.getElementById('tabLevel1');
+            const tab2 = document.getElementById('tabLevel2');
+            const help1 = document.getElementById('helpTextLevel1');
+            const help2 = document.getElementById('helpTextLevel2');
+
+            if (level === 1) {
+                tab1.className = "p-4 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group bg-slate-800/90 border-indigo-500 text-white shadow-lg shadow-indigo-500/10";
+                tab2.className = "p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800/70 transition-all duration-200 text-left relative overflow-hidden group";
+                progressBar.className = "bg-indigo-500 h-full w-0 transition-all duration-300";
+                help1.classList.remove('hidden');
+                help2.classList.add('hidden');
+            } else {
+                tab2.className = "p-4 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group bg-slate-800/90 border-purple-500 text-white shadow-lg shadow-purple-500/10";
+                tab1.className = "p-4 rounded-2xl border-2 border-slate-800 bg-slate-800/40 text-slate-400 hover:bg-slate-800/70 transition-all duration-200 text-left relative overflow-hidden group";
+                progressBar.className = "bg-purple-500 h-full w-0 transition-all duration-300";
+                help2.classList.remove('hidden');
+                help1.classList.add('hidden');
+            }
+
+            initLevel(level);
+        }
+
+        // Check Answer Function
+        function handleCheck(e) {
+            e.preventDefault();
+            const userInput = answerInput.value.trim().toLowerCase().replace(/\s+/g, ' ');
+            const verb = currentQueue[currentVerbIndex];
+            const expectedAnswer = `${verb.base.toLowerCase()} ${verb.past.toLowerCase()}`;
+
+            if (userInput === expectedAnswer) {
+                // Correct Answer
+                showFeedback('Correct! Well done...', 'success');
+                streak++;
+                score += 10 + (streak > 3 ? 5 : 0);
+                
+                streakCountEl.textContent = streak;
+                scoreCountEl.textContent = score;
+
+                // Visual Feedback Animation
+                cardContainer.classList.add('bounce-short');
+                setTimeout(() => cardContainer.classList.remove('bounce-short'), 400);
+
+                // Move to next verb after short delay
+                setTimeout(() => {
+                    currentVerbIndex++;
+                    loadVerb();
+                }, 700);
+
+            } else {
+                // Incorrect Answer - Block Progression!
+                streak = 0;
+                streakCountEl.textContent = streak;
+
+                showFeedback(`Incorrect spelling! Correct form: "${expectedAnswer}"`, 'error');
+
+                // Shake animation for error
+                cardContainer.classList.add('shake');
+                setTimeout(() => cardContainer.classList.remove('shake'), 500);
+
+                // Highlight Input
+                answerInput.classList.add('border-red-500', 'focus:ring-red-500/20');
+                setTimeout(() => {
+                    answerInput.classList.remove('border-red-500', 'focus:ring-red-500/20');
+                }, 1500);
+            }
+        }
+
+        // Show Feedback Banner
+        function showFeedback(msg, type) {
+            feedbackEl.textContent = msg;
+            feedbackEl.style.opacity = '1';
+
+            if (type === 'success') {
+                feedbackEl.className = "min-h-[2.5rem] flex items-center justify-center text-center font-semibold text-sm rounded-xl px-4 py-2 transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+            } else {
+                feedbackEl.className = "min-h-[2.5rem] flex items-center justify-center text-center font-semibold text-sm rounded-xl px-4 py-2 transition-all duration-200 bg-rose-500/20 text-rose-300 border border-rose-500/30";
+            }
+        }
+
+        function hideFeedback() {
+            feedbackEl.style.opacity = '0';
+        }
+
+        // Provide Hint
+        function giveHint() {
+            const verb = currentQueue[currentVerbIndex];
+            answerInput.value = `${verb.base} `;
+            answerInput.focus();
+        }
+
+        // Start Level 1 on Load
+        window.onload = function() {
+            initLevel(1);
+        };
+    </script>
+</body>
+</html>
